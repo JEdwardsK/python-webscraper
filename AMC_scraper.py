@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -35,8 +36,18 @@ def get_film_showtimes_dict (film):
         screens.append(screen_info)
     return screens
 
+def get_date_from_URL(url):
+  """finds the date 2022-MM-DD from the input URL string and returns it
 
-def update_film_json(url, date_str):
+  Args:
+      url (string): AMC url string
+  """
+  path_list = urlparse(url).path.split('/')
+  for item in path_list:
+      if '2022' in item:
+          return item
+
+def update_film_json(url):
     """scrapes the input url for film show time data, exports result to data.JSON 
 
     Args:
@@ -61,9 +72,9 @@ def update_film_json(url, date_str):
         film_data_list.append(film_data)
 
     # The size of each step in days
-    day_delta = timedelta(days=1)
-
+    date_str = get_date_from_URL(url)
     start_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    day_delta = timedelta(days=1)
     end_date = start_date + 7 * day_delta
     prev_date = start_date
 
